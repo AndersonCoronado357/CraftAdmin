@@ -1,0 +1,37 @@
+# Dependencias
+node_modules/
+
+# Lo que la app crea en el PC al usarse (servidores, mundos, copias, claves y registros)
+/datos/
+/servidor/
+/servidores/
+/waterdog/
+/playit/
+/java/
+/backups/
+/descargas/
+/paquete/
+
+# Paquete descargable (se arma con app/tools/empaquetar.js)
+cuentas/descargas/
+
+# Archivos de Minecraft: cada PC los saca de su propio juego al abrir la app
+app/renderer/juego.js
+app/renderer/ore.css
+app/renderer/fonts/
+cuentas/publico/fonts/
+
+# Herramienta que el empaquetador baja cuando hace falta
+app/tools/rcedit-x64.exe
+
+# Notas locales y accesos directos
+/PLAN_servidor_minecraft.md
+/LEEME.txt
+*.lnk
+
+# Varios
+*.log
+*.parcial
+.env
+Thumbs.db
+desktop.ini

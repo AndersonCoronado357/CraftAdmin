@@ -1,0 +1,14 @@
+{
+  "name": "craftadmin",
+  "productName": "CraftAdmin",
+  "version": "1.0.0",
+  "description": "Administra tus servidores de Minecraft Bedrock",
+  "main": "main.js",
+  "private": true,
+  "scripts": {
+    "start": "electron ."
+  },
+  "devDependencies": {
+    "electron": "44.8.0"
+  }
+}
