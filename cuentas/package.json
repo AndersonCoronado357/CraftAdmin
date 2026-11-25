@@ -1,0 +1,13 @@
+{
+  "name": "craftadmin-cuentas",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Cuentas de CraftAdmin: entrar con el correo y un código",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "mysql2": "3.11.3"
+  }
+}
