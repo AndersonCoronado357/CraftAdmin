@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: juego:; style-src 'self' 'unsafe-inline' juego:; font-src 'self' juego:; script-src 'self' juego:">
+  <title>CraftAdmin</title>
+  <link rel="stylesheet" href="juego://local/ore.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body data-zona="lista">
+  <div id="app">
+    <header class="top">
+      <div class="brand"><span class="brand-ico" data-iso="comando"></span><span class="brand-n">CraftAdmin</span></div>
+      <!-- Las secciones son casillas como la barra rápida del juego; el marco blanco marca la elegida -->
+      <!-- Las secciones son casillas como la barra rápida del juego; el bloque verde marca la elegida.
+           Primero «Servidores»; al entrar a uno aparecen su nombre y sus secciones. -->
+      <nav class="nav" id="nav" aria-label="Secciones">
+        <span class="nav-sel" id="nav-sel" aria-hidden="true"></span>
+        <button data-view="servidores" data-tip="Tus servidores&#10;§7Todos, con la vista previa de cada uno"><span class="slot" data-iso="lamparaOn"></span><span class="nav-l">Servidores</span></button>
+        <span class="nav-srv" id="nav-srv"></span>
+        <span class="nav-secs" id="nav-secs">
+          <button data-view="inicio" style="--i:1" data-tip="Inicio&#10;§7Tecla 1"><span class="slot" data-iso="pasto"></span><span class="nav-l">Inicio</span></button>
+          <button data-view="jugadores" style="--i:2" data-tip="Jugadores&#10;§7Tecla 2"><span class="slot" data-iso="cabeza"></span><span class="nav-l">Jugadores</span></button>
+          <button data-view="visitas" style="--i:3" data-tip="Visitas&#10;§7Tecla 3"><span class="slot" data-iso="estante"></span><span class="nav-l">Visitas</span></button>
+          <button data-view="mundos" style="--i:4" data-tip="Mundos&#10;§7Tecla 4"><span class="slot" data-iso="item:mundo"></span><span class="nav-l">Mundos</span></button>
+          <button data-view="copias" style="--i:5" data-tip="Copias&#10;§7Tecla 5"><span class="slot" data-iso="cofre"></span><span class="nav-l">Copias</span></button>
+          <button data-view="consola" style="--i:6" data-tip="Consola&#10;§7Tecla 6"><span class="slot" data-iso="comando"></span><span class="nav-l">Consola</span></button>
+          <button data-view="ajustes" style="--i:7" data-tip="Ajustes&#10;§7Tecla 7"><span class="slot" data-iso="mesa"></span><span class="nav-l">Ajustes</span></button>
+        </span>
+      </nav>
+      <button class="nav-cuenta" id="nav-cuenta" data-view="acceso" hidden></button>
+      <div class="win">
+        <button class="wbtn" data-act="win.minimize" aria-label="Minimizar"><i class="w-min"></i></button>
+        <button class="wbtn" data-act="win.maximize" aria-label="Maximizar"><i class="w-max"></i></button>
+        <button class="wbtn close" data-act="win.close" aria-label="Cerrar"><i class="w-x"></i></button>
+      </div>
+    </header>
+    <main class="main" id="vista"></main>
+    <div class="busy" id="ocupado" hidden><span class="busy-fill"></span></div>
+  </div>
+  <div class="menu" id="menu" role="listbox" hidden></div>
+  <div class="tip" id="tip" role="tooltip" hidden></div>
+  <div class="toasts" id="avisos" aria-live="polite"></div>
+  <div class="closing" id="cierre" hidden>
+    <span class="closing-ico" data-iso="comando"></span>
+    <p class="closing-t">Guardando el mundo</p>
+    <p class="closing-s">Cerrando el servidor y el túnel de playit</p>
+    <span class="bar indet"><span></span></span>
+  </div>
+  <script src="juego://local/juego.js"></script>
+  <script src="pixel.js"></script>
+  <script src="servidores.js"></script>
+  <script src="cuenta.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
