@@ -1,0 +1,483 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CraftAdmin · Servidores de Minecraft Bedrock</title>
+  <meta name="description" content="Crea y administra tus servidores de Minecraft Bedrock desde una sola app: mundos, copias, jugadores y la entrada para tus amigos.">
+  <link rel="icon" href="/favicon.ico">
+  <link rel="preload" href="/fonts/minecraft-seven.otf" as="font" type="font/otf" crossorigin>
+  <link rel="preload" href="/fonts/minecraft-ten.otf" as="font" type="font/otf" crossorigin>
+  <style>
+    @font-face { font-family: 'Minecraft Seven'; src: url(/fonts/minecraft-seven.otf) format('opentype'); font-display: swap; }
+    @font-face { font-family: 'Minecraft Ten'; src: url(/fonts/minecraft-ten.otf) format('opentype'); font-display: swap; }
+    :root {
+      --bg: oklch(0.16 0.008 155);
+      --bg-2: oklch(0.195 0.009 155);
+      --surface: oklch(0.235 0.01 155);
+      --surface-2: oklch(0.28 0.011 155);
+      --chrome: oklch(0.13 0.006 155);
+      --ink: oklch(0.97 0.004 155);
+      --ink-2: oklch(0.86 0.01 155);
+      --ink-3: oklch(0.73 0.013 155);
+      --green: oklch(0.55 0.155 142);
+      --green-hi: oklch(0.61 0.165 142);
+      --green-lip: oklch(0.37 0.11 142);
+      --green-ink: oklch(0.82 0.18 142);
+      --amarillo: oklch(0.96 0.12 102);
+      --redstone: oklch(0.6 0.23 28);
+      --gut: clamp(20px, 5vw, 96px);
+      --ease: cubic-bezier(0.22, 1, 0.36, 1);
+      --f: 'Minecraft Seven', 'Segoe UI', system-ui, sans-serif;
+      --f-t: 'Minecraft Ten', 'Minecraft Seven', 'Segoe UI', sans-serif;
+      color-scheme: dark;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    /* Se desplaza con la rueda o el dedo (suave, con inercia), sin barra a la vista */
+    html { scrollbar-width: none; }
+    html::-webkit-scrollbar, body::-webkit-scrollbar { display: none; width: 0; height: 0; }
+    html.lenis, html.lenis body { height: auto; }
+    .lenis.lenis-smooth { scroll-behavior: auto !important; }
+    body { overflow-x: clip; background: var(--bg); color: var(--ink); font: 18px/1.55 var(--f); -webkit-font-smoothing: none; }
+    ::selection { background: var(--green); color: #fff; }
+    img { display: block; max-width: 100%; }
+    a { color: inherit; }
+    h1, h2, h3 { font-family: var(--f-t); font-weight: normal; line-height: 1.08; letter-spacing: 0.01em; text-wrap: balance; }
+    .px { image-rendering: pixelated; }
+    .wrap { padding-inline: var(--gut); }
+    .palabra { display: inline-block; }
+
+
+    /* ---------- Barra de arriba ---------- */
+    .top { position: fixed; inset: 0 0 auto; z-index: 20; transition: background 300ms, transform 400ms var(--ease); }
+    .top.solida { background: var(--chrome); }
+    .top .wrap { display: flex; align-items: center; gap: 32px; height: 72px; }
+    .marca { display: flex; align-items: center; gap: 12px; text-decoration: none; font: 22px/1 var(--f-t); }
+    .marca img { width: 40px; height: 40px; transition: transform 400ms var(--ease); }
+    .marca:hover img { transform: rotate(-10deg) scale(1.1); }
+    .top nav { display: flex; gap: 30px; margin-left: auto; }
+    .top nav a { position: relative; color: var(--ink-2); text-decoration: none; transition: color 160ms; }
+    .top nav a::after { content: ""; position: absolute; left: 0; right: 0; bottom: -8px; height: 3px; background: var(--green-ink); transform: scaleX(0); transform-origin: left; transition: transform 260ms var(--ease); }
+    .top nav a:hover { color: var(--amarillo); }
+    .top nav a:hover::after { transform: scaleX(1); }
+
+    /* Botón verde de Bedrock: labio oscuro abajo y se hunde al presionar */
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 14px; height: 64px; padding: 0 34px 6px; color: #fff; background: var(--green); box-shadow: inset 0 -6px 0 var(--green-lip); font: 22px/1 var(--f); text-decoration: none; border: 0; cursor: pointer; transition: background 160ms, transform 220ms var(--ease); }
+    .btn:hover { background: var(--green-hi); transform: translateY(-3px); }
+    .btn:active { transform: none; padding: 6px 34px 0; box-shadow: inset 0 6px 0 var(--green-lip); }
+    .btn svg { width: 22px; height: 22px; flex: none; }
+    .btn.sm { height: 44px; padding: 0 20px 4px; font-size: 18px; box-shadow: inset 0 -4px 0 var(--green-lip); }
+    .btn.sm svg { width: 18px; height: 18px; }
+    .btn[aria-disabled="true"] { background: var(--surface-2); color: var(--ink-2); box-shadow: inset 0 -6px 0 oklch(0 0 0 / 0.3); cursor: default; transform: none; }
+    .link { display: inline-flex; align-items: center; gap: 10px; color: var(--ink-2); text-decoration: none; transition: color 160ms, gap 220ms var(--ease); }
+    .link:hover { color: var(--amarillo); gap: 14px; }
+
+    /* ---------- Portada ---------- */
+    .hero { position: relative; height: 100vh; min-height: 680px; overflow: hidden; isolation: isolate; }
+    .hero-fondo { position: absolute; inset: -6%; z-index: -2; will-change: transform; }
+    .hero-fondo img { width: 100%; height: 100%; object-fit: cover; }
+    .hero-velo { position: absolute; inset: 0; z-index: -1; background: linear-gradient(90deg, oklch(0.14 0.007 155 / 0.96) 0, oklch(0.14 0.007 155 / 0.8) 36%, oklch(0.14 0.007 155 / 0.3) 70%, oklch(0.14 0.007 155 / 0.5) 100%), linear-gradient(to top, var(--bg) 0, transparent 26%); }
+    .particulas { position: absolute; inset: 0; z-index: -1; pointer-events: none; }
+    .particulas i { position: absolute; bottom: -12px; left: var(--x); width: var(--t); height: var(--t); background: var(--c); opacity: 0; animation: sube var(--d) linear infinite; animation-delay: var(--r); }
+    @keyframes sube { 0% { opacity: 0; transform: translate(0, 0); } 12% { opacity: 0.85; } 80% { opacity: 0.5; } 100% { opacity: 0; transform: translate(var(--dx), -90vh); } }
+    .hero-in { height: 100%; display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); align-items: center; gap: 48px; padding: 96px 0 40px var(--gut); }
+    .hero h1 { font-size: clamp(44px, 5.2vw, 88px); }
+    .hero h1 em { font-style: normal; color: var(--green-ink); }
+    .hero .lead { margin-top: 26px; max-width: 30em; color: var(--ink-2); font-size: 22px; line-height: 1.5; }
+    .acciones { display: flex; align-items: center; gap: 30px; flex-wrap: wrap; margin-top: 40px; }
+    .acciones small { display: block; margin-top: 14px; color: var(--ink-3); font-size: 16px; }
+    .hero-app { position: relative; margin-right: -12vw; perspective: 1800px; }
+    .hero-app .ventana { padding: 10px; background: var(--chrome); transform-origin: 30% 50%; will-change: transform; }
+    .hero-app .ventana img { width: 100%; height: auto; }
+    .etiqueta { position: absolute; z-index: 2; display: flex; align-items: center; gap: 12px; padding: 12px 18px 12px 12px; background: var(--chrome); font-size: 16px; line-height: 1.3; white-space: nowrap; }
+    .etiqueta img { width: 36px; height: auto; }
+    .etiqueta b { display: block; font-weight: normal; }
+    .etiqueta span { display: block; color: var(--ink-3); }
+    .etiqueta .punto { width: 12px; height: 12px; flex: none; margin: 0 4px; background: var(--green-ink); animation: late 2.2s ease-in-out infinite; }
+    .e1 { top: -30px; left: 6%; }
+    .e2 { bottom: 14%; left: -40px; }
+    @keyframes late { 50% { transform: scale(0.55); opacity: 0.5; } }
+
+    /* ---------- Recorrido: cada parte de la app en su bloque, y la barra rápida acompaña arriba ---------- */
+    .tour { position: relative; padding: 120px 0 40px; background: var(--bg); }
+    .tour-cab { display: flex; align-items: end; justify-content: space-between; gap: 40px; flex-wrap: wrap; }
+    .tour-cab h2 { font-size: clamp(36px, 4vw, 64px); max-width: 12em; }
+    .tour-cab p { max-width: 28em; color: var(--ink-2); }
+    .barra-pega { position: sticky; top: 72px; z-index: 15; margin-top: 40px; padding: 14px 0; background: var(--bg); }
+    .barra-caja { display: flex; align-items: center; gap: 20px; }
+    .barra { position: relative; display: inline-flex; gap: 6px; padding: 6px; background: var(--chrome); }
+    .barra-sel { position: absolute; top: 6px; left: 6px; width: 64px; height: 64px; background: var(--green); box-shadow: inset 0 -5px 0 var(--green-lip); transition: transform 460ms var(--ease); }
+    .slot { position: relative; z-index: 1; display: grid; place-items: center; width: 64px; height: 64px; background: oklch(0 0 0 / 0.32); border: 0; cursor: pointer; transition: background 160ms; }
+    .slot.on { background: transparent; }
+    .slot:hover:not(.on) { background: oklch(1 0 0 / 0.1); }
+    .slot img { width: 42px; height: auto; transition: transform 260ms var(--ease); }
+    .slot:hover img { transform: translateY(-4px) rotate(-6deg); }
+    .slot.on img { animation: salta 520ms var(--ease); }
+    @keyframes salta { 30% { transform: translateY(-12px) scale(1.12); } 100% { transform: none; } }
+    .barra-nombre { color: var(--ink-2); font-size: 20px; }
+    .parte { display: grid; grid-template-columns: minmax(0, 0.55fr) minmax(0, 1.45fr); gap: 72px; align-items: center; min-height: 88vh; padding: 48px 0 48px var(--gut); }
+    .parte:nth-child(even) { grid-template-columns: minmax(0, 1.45fr) minmax(0, 0.55fr); padding: 48px var(--gut) 48px 0; }
+    .parte:nth-child(even) .parte-t { order: 2; }
+    .parte-ico { display: grid; place-items: center; width: 76px; height: 76px; margin-bottom: 24px; background: var(--chrome); }
+    .parte-ico img { width: 50px; height: auto; }
+    .parte-t h3 { font-size: clamp(32px, 2.8vw, 50px); }
+    .parte-t p { margin-top: 18px; color: var(--ink-2); }
+    .parte-t ul { margin-top: 22px; list-style: none; display: grid; gap: 12px; color: var(--ink-2); }
+    .parte-t li { display: flex; gap: 14px; align-items: baseline; }
+    .parte-t li::before { content: ""; flex: none; width: 10px; height: 10px; background: var(--green-ink); transform: translateY(-1px); }
+    .parte-img { perspective: 1800px; }
+    .parte-marco { padding: 10px; background: var(--chrome); transform-origin: 50% 60%; will-change: transform; }
+    .parte-marco img { width: 100%; height: auto; }
+
+    /* ---------- Cómo entran tus amigos: el circuito se dibuja al bajar ---------- */
+    .entrada { position: relative; padding: 140px 0 160px; background: var(--bg-2); overflow: hidden; }
+    .entrada h2 { font-size: clamp(34px, 3.8vw, 64px); max-width: 14em; }
+    .entrada .sub { margin-top: 18px; max-width: 36em; color: var(--ink-2); }
+    .circuito { display: grid; grid-template-columns: auto 1fr auto 1fr auto 1fr auto; align-items: center; margin-top: 80px; }
+    .nodo { display: flex; flex-direction: column; align-items: center; gap: 14px; text-align: center; }
+    .nodo-ico { display: grid; place-items: center; width: 132px; height: 132px; background: var(--chrome); transition: background 300ms; }
+    .nodo.listo .nodo-ico { background: var(--surface); }
+    .nodo-ico img { width: 80px; height: auto; }
+    .nodo b { font: 22px/1.1 var(--f-t); font-weight: normal; }
+    .nodo span { max-width: 13em; color: var(--ink-3); font-size: 16px; line-height: 1.4; }
+    .polvo { position: relative; height: 8px; margin: 0 12px 80px; background: repeating-linear-gradient(90deg, oklch(0.3 0.08 27) 0 8px, transparent 8px 14px); }
+    .polvo i { position: absolute; inset: 0; background: repeating-linear-gradient(90deg, var(--redstone) 0 8px, transparent 8px 14px); transform: scaleX(0); transform-origin: left; }
+    .entrada-fin { margin-top: 56px; display: flex; align-items: center; gap: 16px; color: var(--ink-2); }
+    .entrada-fin b { color: var(--green-ink); font-weight: normal; }
+
+    /* ---------- Cómo empezar ---------- */
+    .pasos { padding: 140px 0 120px; overflow: hidden; }
+    .pasos h2 { font-size: clamp(34px, 3.8vw, 64px); }
+    .pasos ol { list-style: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; margin-top: 52px; counter-reset: paso; }
+    .pasos li { position: relative; display: flex; flex-direction: column; min-height: 340px; padding: 36px 34px 38px; background: var(--bg-2); counter-increment: paso; overflow: hidden; transition: background 300ms; }
+    .pasos li:hover { background: var(--surface); }
+    .pasos .num { position: absolute; right: 22px; top: 0; font: 170px/1 var(--f-t); color: oklch(1 0 0 / 0.05); transition: color 300ms; }
+    .pasos li:hover .num { color: oklch(0.6 0.16 142 / 0.16); }
+    .pasos li img { width: 84px; height: auto; margin-bottom: auto; transition: transform 400ms var(--ease); }
+    .pasos li:hover img { transform: translateY(-6px) rotate(-6deg); }
+    .pasos li small { margin-top: 44px; color: var(--green-ink); font-size: 16px; }
+    .pasos li b { display: block; margin-top: 10px; font: 28px/1.1 var(--f-t); font-weight: normal; }
+    .pasos li span { display: block; margin-top: 12px; color: var(--ink-2); }
+
+    /* ---------- Lo que necesitas ---------- */
+    .req { padding: 0 0 140px; overflow: hidden; }
+    .req .wrap { display: grid; grid-template-columns: minmax(0, 0.7fr) minmax(0, 1.3fr); gap: 64px; align-items: start; }
+    .req h2 { font-size: clamp(32px, 3.4vw, 54px); }
+    .req dl { display: grid; gap: 4px; }
+    .req dl div { display: grid; grid-template-columns: 11em minmax(0, 1fr); gap: 24px; align-items: center; padding: 24px 28px; background: var(--bg-2); transition: background 200ms; }
+    .req dl div:hover { background: var(--surface); }
+    .req dt { color: var(--ink-3); }
+
+    /* ---------- Cierre ---------- */
+    .final { position: relative; height: 100vh; min-height: 620px; display: grid; place-items: center; overflow: hidden; isolation: isolate; text-align: center; }
+    .final .hero-fondo { inset: -18% 0; }
+    .final .hero-velo { background: oklch(0.14 0.007 155 / 0.74); }
+    .final h2 { font-size: clamp(42px, 5.6vw, 96px); }
+    .final p { margin: 22px auto 0; max-width: 30em; color: var(--ink-2); font-size: 22px; }
+    .final .acciones { justify-content: center; }
+
+    footer { padding: 32px 0 40px; background: var(--chrome); color: var(--ink-3); font-size: 16px; }
+    footer .wrap { display: flex; justify-content: space-between; align-items: center; gap: 20px; flex-wrap: wrap; }
+    footer .marca { font-size: 18px; color: var(--ink-2); }
+    footer .marca img { width: 30px; height: 30px; }
+
+    @media (max-width: 1100px) {
+      .hero { height: auto; }
+      .hero-in { grid-template-columns: minmax(0, 1fr); padding: 120px var(--gut) 80px; }
+      .hero-app { margin-right: 0; }
+      .tour { padding: 96px 0 20px; }
+      .parte, .parte:nth-child(even) { grid-template-columns: minmax(0, 1fr); gap: 28px; min-height: 0; padding: 40px var(--gut); }
+      .parte:nth-child(even) .parte-t { order: 0; }
+      .req .wrap { grid-template-columns: minmax(0, 1fr); gap: 32px; }
+      .circuito { grid-template-columns: 1fr; gap: 10px; }
+      .polvo { width: 8px; height: 48px; margin: 0 auto; background: repeating-linear-gradient(180deg, oklch(0.3 0.08 27) 0 8px, transparent 8px 14px); }
+      .polvo i { background: repeating-linear-gradient(180deg, var(--redstone) 0 8px, transparent 8px 14px); transform-origin: top; }
+      .pasos ol { grid-template-columns: minmax(0, 1fr); }
+      .pasos li { min-height: 0; }
+      .e2 { left: 8px; }
+    }
+    @media (max-width: 720px) {
+      body { font-size: 16px; }
+      .top nav { display: none; }
+      .top .btn.sm span { display: none; }
+      .hero .lead { font-size: 18px; }
+      .etiqueta { display: none; }
+      .slot, .barra-sel { width: 48px; height: 48px; }
+      .slot img { width: 32px; }
+      .barra-nombre { display: none; }
+      .req dl div { grid-template-columns: minmax(0, 1fr); gap: 4px; }
+      .entrada, .pasos, .final { padding: 80px 0; }
+      .final { height: auto; }
+    }
+  </style>
+</head>
+<body>
+  <header class="top" id="arriba">
+    <div class="wrap">
+      <a class="marca" href="/"><img class="px" src="/img/icono.png" alt="" width="40" height="40">CraftAdmin</a>
+      <nav aria-label="Secciones"><a href="#recorrido">La app</a><a href="#entrada">Tus amigos</a><a href="#empezar">Cómo empezar</a></nav>
+      <a class="btn sm" href="/descargar" data-descarga>
+        <svg viewBox="0 0 16 16" fill="currentColor" shape-rendering="crispEdges" aria-hidden="true"><rect x="7" y="1" width="2" height="9"/><rect x="4" y="7" width="2" height="2"/><rect x="10" y="7" width="2" height="2"/><rect x="5" y="9" width="2" height="2"/><rect x="9" y="9" width="2" height="2"/><rect x="2" y="13" width="12" height="2"/></svg><span>Descargar</span></a>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero" id="portada">
+      <div class="hero-fondo" aria-hidden="true"><img src="/img/panorama.webp" alt=""></div>
+      <div class="hero-velo" aria-hidden="true"></div>
+      <div class="particulas" id="particulas" aria-hidden="true"></div>
+      <div class="hero-in">
+        <div class="hero-texto">
+          <h1 class="h-anim">Tu servidor de Minecraft Bedrock, <em>listo para tus amigos</em></h1>
+          <p class="lead h-anim">Crea y administra varios servidores desde una sola app en tu PC: mundos, copias, jugadores y la entrada para tus amigos, sin tocar el router ni escribir un solo comando.</p>
+          <div class="acciones h-anim" id="descargar">
+            <div>
+              <a class="btn" href="/descargar" data-descarga>
+                <svg viewBox="0 0 16 16" fill="currentColor" shape-rendering="crispEdges" aria-hidden="true"><rect x="7" y="1" width="2" height="9"/><rect x="4" y="7" width="2" height="2"/><rect x="10" y="7" width="2" height="2"/><rect x="5" y="9" width="2" height="2"/><rect x="9" y="9" width="2" height="2"/><rect x="2" y="13" width="12" height="2"/></svg>Descargar para Windows</a>
+              <small data-detalle>Gratis · Windows 10 y 11</small>
+            </div>
+          </div>
+        </div>
+        <div class="hero-app">
+          <div class="ventana"><img src="/img/servidores.webp" alt="CraftAdmin con la lista de servidores y la vista grande del servidor elegido" width="1600" height="908"></div>
+          <div class="etiqueta e1"><i class="punto"></i><div><b>En línea</b><span>3 de 10 jugando</span></div></div>
+          <div class="etiqueta e2"><img class="px" src="/img/cofre.png" alt=""><div><b>Copia lista</b><span>hace 1 minuto</span></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="tour" id="recorrido">
+      <div class="wrap tour-cab">
+        <h2 class="t-anim">Todo lo de tu servidor, en un solo lugar</h2>
+        <p class="t-anim">Lo que antes eran carpetas, comandos y archivos de configuración, ahora son pantallas claras con el estilo del juego.</p>
+      </div>
+      <div class="barra-pega">
+        <div class="wrap barra-caja">
+          <div class="barra" id="barra" role="tablist" aria-label="Partes de la app"><span class="barra-sel" id="barra-sel" aria-hidden="true"></span></div>
+          <span class="barra-nombre" id="barra-nombre"></span>
+        </div>
+      </div>
+      <div id="partes"></div>
+    </section>
+
+    <section class="entrada" id="entrada">
+      <div class="wrap">
+        <h2 class="t-anim">Tus amigos entran desde sus casas</h2>
+        <p class="sub t-anim">CraftAdmin arma la entrada con playit, gratis y sin abrir puertos del router. Tus amigos solo ponen la dirección en Minecraft, en Servidores.</p>
+        <div class="circuito" id="circuito">
+          <div class="nodo"><span class="nodo-ico"><img class="px" src="/img/cabeza.png" alt=""></span><b>Tus amigos</b><span>Ponen la dirección en Minecraft</span></div>
+          <i class="polvo"><i></i></i>
+          <div class="nodo"><span class="nodo-ico"><img class="px" src="/img/portal.png" alt=""></span><b>playit</b><span>El túnel gratis hasta tu PC</span></div>
+          <i class="polvo"><i></i></i>
+          <div class="nodo"><span class="nodo-ico"><img class="px" id="lampara" src="/img/lampara-off.png" alt=""></span><b>La entrada</b><span>La deja lista CraftAdmin</span></div>
+          <i class="polvo"><i></i></i>
+          <div class="nodo"><span class="nodo-ico"><img class="px" src="/img/comando.png" alt=""></span><b>Tu servidor</b><span>Corre en tu PC, con tu mundo</span></div>
+        </div>
+        <p class="entrada-fin t-anim" id="entrada-fin">Cuando la lámpara se prende, <b>tus amigos ya pueden entrar</b>.</p>
+      </div>
+    </section>
+
+    <section class="pasos" id="empezar">
+      <div class="wrap">
+        <h2 class="t-anim">Cómo empezar</h2>
+        <ol>
+          <li><span class="num">1</span><img class="px" src="/img/comando.png" alt=""><small>Paso 1</small><b>Descarga CraftAdmin</b><span>Ábrelo en el PC donde va a correr el servidor.</span></li>
+          <li><span class="num">2</span><img class="px" src="/img/cabeza.png" alt=""><small>Paso 2</small><b>Crea tu cuenta</b><span>Con tu correo y una contraseña, o con Google.</span></li>
+          <li><span class="num">3</span><img class="px" src="/img/pasto.png" alt=""><small>Paso 3</small><b>Arma tu servidor</b><span>El asistente te lleva paso a paso y al final le pasas la dirección a tus amigos.</span></li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="req" id="requisitos">
+      <div class="wrap">
+        <h2 class="t-anim">Lo que necesitas</h2>
+        <dl>
+          <div><dt>Sistema</dt><dd>Windows 10 u 11 de 64 bits</dd></div>
+          <div><dt>Minecraft</dt><dd>Minecraft Bedrock instalado en ese PC</dd></div>
+          <div><dt>Para tus amigos</dt><dd>Una cuenta gratis de playit.gg; la app te guía</dd></div>
+          <div><dt>Memoria</dt><dd>Unos 2 GB libres por cada servidor abierto</dd></div>
+        </dl>
+      </div>
+    </section>
+
+    <section class="final">
+      <div class="hero-fondo" aria-hidden="true"><img src="/img/panorama.webp" alt="" loading="lazy"></div>
+      <div class="hero-velo" aria-hidden="true"></div>
+      <div class="wrap">
+        <h2 id="final-t">Tu servidor te está esperando</h2>
+        <p class="t-anim">Descárgalo, crea tu cuenta y en unos minutos tus amigos ya pueden entrar.</p>
+        <div class="acciones t-anim">
+          <div>
+            <a class="btn" href="/descargar" data-descarga>
+              <svg viewBox="0 0 16 16" fill="currentColor" shape-rendering="crispEdges" aria-hidden="true"><rect x="7" y="1" width="2" height="9"/><rect x="4" y="7" width="2" height="2"/><rect x="10" y="7" width="2" height="2"/><rect x="5" y="9" width="2" height="2"/><rect x="9" y="9" width="2" height="2"/><rect x="2" y="13" width="12" height="2"/></svg>Descargar para Windows</a>
+            <small data-detalle>Gratis · Windows 10 y 11</small>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <a class="marca" href="/"><img class="px" src="/img/icono.png" alt="" width="30" height="30">CraftAdmin</a>
+      <span>CraftAdmin no es un producto oficial de Minecraft. No está aprobado ni asociado con Mojang ni Microsoft.</span>
+    </div>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
+  <script>
+    // ---------- Partes de la app para el recorrido ----------
+    const partes = [
+      { ico: 'lampara', nombre: 'Servidores', img: 'servidores', t: 'Varios servidores a la vez', p: 'Un survival con tus amigos, un creativo para construir y un mapa de parkour, abiertos al mismo tiempo. Cada uno con su mundo, sus copias y su propia entrada.', l: ['Mira de un vistazo cuáles están abiertos y quién juega', 'Abre, cierra o entra a cada uno con un clic'] },
+      { ico: 'mesa', nombre: 'Asistente', img: 'asistente', t: 'Un servidor nuevo en cuatro pasos', p: 'Le pones nombre, eliges el modo, la dificultad y el mundo: uno nuevo, uno de tu Minecraft o un archivo .mcworld. CraftAdmin baja e instala lo necesario.', l: ['Supervivencia, creativo o aventura, normal o plano', 'Quién puede entrar y con qué permisos'] },
+      { ico: 'pasto', nombre: 'Inicio', img: 'inicio', t: 'Tu servidor de un vistazo', p: 'La foto de tu mundo, la dirección lista para copiar, tus amigos de pie sobre el pasto y el estado de la entrada.', l: ['Abre y cierra el servidor guardando el mundo', 'Te avisa si algo de la entrada no funciona'] },
+      { ico: 'cabeza', nombre: 'Jugadores', img: 'jugadores', t: 'Sabes quién juega y cuánto', p: 'Cada amigo con su skin, cuándo entró, cuánto ha jugado y su rol. Agrega a tu lista a quien quieras y bloquea a quien no.', l: ['Visitante, miembro u operador, por jugador', 'Lo jugado cada día de la semana'] },
+      { ico: 'cofre', nombre: 'Mundos y copias', img: 'mundos', t: 'Tus mundos, siempre a salvo', p: 'Copias automáticas cada vez que abres el servidor y cuando tú quieras, sin sacar a nadie. Trae mundos de tu Minecraft o exporta los del servidor.', l: ['Copias en caliente, con el servidor abierto', 'Cambia de mundo en un clic'] },
+    ];
+    const $ = (s, r = document) => r.querySelector(s);
+    const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+
+    // Partículas que suben sobre el paisaje, como en la app.
+    const colores = ['oklch(0.97 0.03 110)', 'oklch(0.88 0.13 135)', 'oklch(0.93 0.1 95)'];
+    $('#particulas').innerHTML = Array.from({ length: 34 }, (_, i) => `<i style="--x:${(Math.random() * 100).toFixed(1)}%;--t:${[3, 4, 4, 5, 6][i % 5]}px;--d:${(9 + Math.random() * 10).toFixed(1)}s;--r:-${(Math.random() * 18).toFixed(1)}s;--dx:${Math.round(Math.random() * 120 - 60)}px;--c:${colores[i % 3]}"></i>`).join('');
+
+    // Títulos que entran palabra por palabra.
+    function partir(el) {
+      el.innerHTML = el.innerHTML.split(/(<em>.*?<\/em>)/).map((trozo) => {
+        if (trozo.startsWith('<em>')) return `<em>${trozo.slice(4, -5).split(' ').map((w) => `<span class="palabra">${w}</span>`).join(' ')}</em>`;
+        return trozo.split(' ').map((w) => (w ? `<span class="palabra">${w}</span>` : w)).join(' ');
+      }).join('');
+      return $$('.palabra', el);
+    }
+
+    // ---------- Recorrido: un bloque por parte y la barra rápida que marca dónde vas ----------
+    const barra = $('#barra');
+    barra.insertAdjacentHTML('beforeend', partes.map((x, i) => `<button class="slot" role="tab" aria-label="${x.nombre}" data-i="${i}"><img class="px" src="/img/${x.ico}.png" alt=""></button>`).join(''));
+    $('#partes').innerHTML = partes.map((x, i) => `<article class="parte" id="parte-${i}" data-i="${i}">
+        <div class="parte-t"><span class="parte-ico"><img class="px" src="/img/${x.ico}.png" alt=""></span><h3>${x.t}</h3><p>${x.p}</p><ul>${x.l.map((li) => `<li>${li}</li>`).join('')}</ul></div>
+        <div class="parte-img"><div class="parte-marco"><img src="/img/${x.img}.webp" alt="${x.t}" loading="lazy" width="1600" height="908"></div></div>
+      </article>`).join('');
+    let actual = -1;
+    function marcar(i) {
+      if (i === actual) return;
+      actual = i;
+      $$('.slot').forEach((b, k) => { b.classList.toggle('on', k === i); b.setAttribute('aria-selected', k === i); });
+      $('#barra-sel').style.transform = `translateX(${i * ((innerWidth <= 720 ? 48 : 64) + 6)}px)`;
+      $('#barra-nombre').textContent = partes[i].nombre;
+    }
+    marcar(0);
+    let lenis = null;
+    barra.addEventListener('click', (e) => {
+      const b = e.target.closest('.slot');
+      if (!b) return;
+      const destino = $(`#parte-${b.dataset.i}`);
+      if (lenis) lenis.scrollTo(destino, { offset: -170, duration: 1.4 }); else destino.scrollIntoView({ behavior: 'smooth' });
+    });
+
+    // ---------- Si no hay archivo para descargar todavía, los botones lo dicen ----------
+    fetch('/api/descarga').then((r) => r.json()).then((d) => {
+      const mb = d.tamano ? `${Math.round(d.tamano / 1048576)} MB` : '';
+      $$('[data-detalle]').forEach((el) => { el.textContent = d.disponible ? `Gratis · Windows 10 y 11 · ${mb} · Descomprime y abre CraftAdmin.exe` : 'La descarga estará disponible muy pronto'; });
+      if (!d.disponible) $$('[data-descarga]').forEach((a) => { a.setAttribute('aria-disabled', 'true'); a.removeAttribute('href'); });
+    }).catch(() => {});
+
+    // ---------- Movimiento al bajar ----------
+    const arriba = $('#arriba');
+    const ancho = matchMedia('(min-width: 1101px)');
+    if (window.gsap && window.ScrollTrigger) {
+      gsap.registerPlugin(ScrollTrigger);
+
+      // Desplazamiento suave, con inercia, que mueve también las animaciones.
+      if (window.Lenis) {
+        lenis = new Lenis({ duration: 1.15, smoothWheel: true, wheelMultiplier: 0.9 });
+        lenis.on('scroll', ScrollTrigger.update);
+        gsap.ticker.add((t) => lenis.raf(t * 1000));
+        gsap.ticker.lagSmoothing(0);
+        $$('a[href^="#"]').forEach((a) => a.addEventListener('click', (e) => { const d = $(a.getAttribute('href')); if (d) { e.preventDefault(); lenis.scrollTo(d, { offset: 0, duration: 1.6 }); } }));
+      }
+
+      // La barra de arriba toma fondo al bajar.
+      ScrollTrigger.create({ start: 40, end: 'max', onToggle: (s) => arriba.classList.toggle('solida', s.isActive) });
+
+      // Entrada de la portada al cargar.
+      const palabrasH1 = partir($('.hero h1'));
+      gsap.timeline({ defaults: { ease: 'expo.out' } })
+        .from('.hero-fondo', { scale: 1.25, duration: 2.4 }, 0)
+        .from(palabrasH1, { yPercent: 110, opacity: 0, duration: 1, stagger: 0.05 }, 0.15)
+        .from('.hero .lead', { y: 30, opacity: 0, duration: 1 }, 0.55)
+        .from('.hero .acciones', { y: 30, opacity: 0, duration: 1 }, 0.7)
+        .from('.hero-app', { x: 160, opacity: 0, duration: 1.4 }, 0.3)
+        .from('.ventana', { rotateY: -32, duration: 1.8 }, 0.3)
+        .from('.etiqueta', { scale: 0.6, opacity: 0, duration: 0.8, stagger: 0.15, ease: 'back.out(2)' }, 1.1);
+      gsap.to('.e1', { y: -12, duration: 2.6, ease: 'sine.inOut', yoyo: true, repeat: -1 });
+      gsap.to('.e2', { y: 12, duration: 3.1, ease: 'sine.inOut', yoyo: true, repeat: -1 });
+
+      ScrollTrigger.matchMedia({
+        '(min-width: 1101px)': () => {
+          // Portada: al bajar el paisaje se acerca, el texto se va y la app se endereza y crece hacia el centro.
+          gsap.timeline({ scrollTrigger: { trigger: '.hero', start: 'top top', end: '+=60%', scrub: 0.6, pin: true, anticipatePin: 1 } })
+            .to('.hero-fondo', { scale: 1.3, yPercent: 6, ease: 'none' }, 0)
+            .to('.hero-texto', { x: -140, opacity: 0, ease: 'none' }, 0)
+            .to('.etiqueta', { opacity: 0, y: -40, stagger: 0.05, ease: 'none', duration: 0.4 }, 0)
+            .fromTo('.ventana', { rotateY: -10, rotateX: 3 }, { rotateY: 0, rotateX: 0, ease: 'none' }, 0)
+            .to('.hero-app', { xPercent: -58, yPercent: 4, scale: 1.18, ease: 'none' }, 0)
+            .to('.hero-velo', { opacity: 0.6, ease: 'none' }, 0);
+
+        },
+      });
+
+      // Recorrido: al bajar, cada captura entra inclinada, se endereza y crece al llegar al centro, y se aleja al salir.
+      $$('.parte').forEach((parte, i) => {
+        const marco = $('.parte-marco', parte);
+        const lado = i % 2 ? 1 : -1;
+        gsap.timeline({ scrollTrigger: { trigger: parte, start: 'top bottom', end: 'bottom top', scrub: 0.9 } })
+          .fromTo(marco, { rotateX: 16, rotateY: 12 * lado, scale: 0.84, yPercent: 14, opacity: 0.35 }, { rotateX: 0, rotateY: 0, scale: 1, yPercent: 0, opacity: 1, ease: 'power2.out', duration: 1 })
+          .to(marco, { rotateX: -8, scale: 0.94, yPercent: -8, opacity: 0.55, ease: 'power1.in', duration: 1 });
+        gsap.from($$('.parte-t > *', parte), { x: i % 2 ? 90 : -90, opacity: 0, duration: 1.1, stagger: 0.08, ease: 'expo.out', scrollTrigger: { trigger: parte, start: 'top 65%' } });
+        gsap.fromTo($('.parte-ico img', parte), { rotate: -20, scale: 0.6 }, { rotate: 0, scale: 1, ease: 'back.out(2)', duration: 0.9, scrollTrigger: { trigger: parte, start: 'top 65%' } });
+        ScrollTrigger.create({ trigger: parte, start: 'top 55%', end: 'bottom 55%', onToggle: (st) => { if (st.isActive) marcar(i); } });
+      });
+
+      // Circuito de redstone: el polvo se dibuja con el desplazamiento y cada bloque se enciende cuando le llega.
+      const nodos = $$('#circuito .nodo'), polvos = $$('#circuito .polvo i');
+      gsap.set(nodos.slice(1), { opacity: 0.25, scale: 0.85 });
+      const tc = gsap.timeline({ scrollTrigger: { trigger: '#circuito', start: 'top 75%', end: 'bottom 35%', scrub: 0.8,
+        onUpdate: (s) => {
+          const prendida = s.progress > 0.8;
+          const l = $('#lampara');
+          if (l && l.dataset.on !== String(prendida)) { l.dataset.on = prendida; l.src = prendida ? '/img/lampara.png' : '/img/lampara-off.png'; }
+          nodos.forEach((n, k) => n.classList.toggle('listo', s.progress >= k / 3 - 0.01));
+        } } });
+      tc.from(nodos[0], { scale: 0.7, opacity: 0, duration: 0.3 });
+      polvos.forEach((p, k) => {
+        tc.to(p, { scaleX: ancho.matches ? 1 : 1, scaleY: 1, duration: 1, ease: 'none' })
+          .to(nodos[k + 1], { opacity: 1, scale: 1, duration: 0.35, ease: 'back.out(2)' });
+      });
+      gsap.fromTo('#entrada-fin', { opacity: 0, y: 30 }, { opacity: 1, y: 0, scrollTrigger: { trigger: '#circuito', start: 'bottom 45%', end: 'bottom 30%', scrub: 1 } });
+
+      // Títulos y textos que entran al llegar.
+      $$('.t-anim').forEach((el) => gsap.from(el, { y: 60, opacity: 0, duration: 1.1, ease: 'expo.out', scrollTrigger: { trigger: el, start: 'top 88%' } }));
+
+      // Cómo empezar: las tarjetas suben en cascada y los números grandes van a otra velocidad.
+      gsap.from('.pasos li', { y: 140, rotate: 2.5, opacity: 0, duration: 1.2, stagger: 0.14, ease: 'expo.out', scrollTrigger: { trigger: '.pasos ol', start: 'top 85%' } });
+      $$('.pasos .num').forEach((n) => gsap.fromTo(n, { yPercent: 40 }, { yPercent: -40, ease: 'none', scrollTrigger: { trigger: n.closest('li'), start: 'top bottom', end: 'bottom top', scrub: true } }));
+      $$('.pasos li img').forEach((im) => gsap.fromTo(im, { y: 30 }, { y: -20, ease: 'none', scrollTrigger: { trigger: im.closest('li'), start: 'top bottom', end: 'bottom top', scrub: true } }));
+
+      // Lo que necesitas: las filas entran desde la derecha.
+      gsap.from('.req dl div', { x: 120, opacity: 0, duration: 1, stagger: 0.09, ease: 'expo.out', scrollTrigger: { trigger: '.req dl', start: 'top 85%' } });
+
+      // Cierre: el paisaje con profundidad y el título palabra por palabra.
+      gsap.fromTo('.final .hero-fondo', { yPercent: -10, scale: 1.15 }, { yPercent: 10, scale: 1, ease: 'none', scrollTrigger: { trigger: '.final', start: 'top bottom', end: 'bottom top', scrub: true } });
+      const palabrasFin = partir($('#final-t'));
+      gsap.from(palabrasFin, { yPercent: 120, opacity: 0, duration: 1, stagger: 0.07, ease: 'expo.out', scrollTrigger: { trigger: '.final', start: 'top 60%' } });
+
+      addEventListener('load', () => ScrollTrigger.refresh());
+    } else {
+      // Sin las librerías la página se ve completa, solo sin movimiento al bajar.
+      addEventListener('scroll', () => arriba.classList.toggle('solida', scrollY > 40), { passive: true });
+    }
+  </script>
+</body>
+</html>
