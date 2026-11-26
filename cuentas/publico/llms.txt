@@ -1,0 +1,39 @@
+# CraftAdmin
+
+> CraftAdmin es una app gratis para Windows que crea y administra servidores de Minecraft Bedrock en el propio PC: varios servidores a la vez, mundos, copias, jugadores y la entrada para los amigos por internet, sin abrir puertos del router ni escribir comandos. Está en español.
+
+Dirección: https://craftadmin.acmsy.com/
+Descarga directa: https://craftadmin.acmsy.com/descargar
+
+## Qué hace
+
+- Varios servidores de Minecraft Bedrock en el mismo PC, abiertos a la vez.
+- Asistente de cuatro pasos para crear un servidor: modo, dificultad, mundo y quién entra.
+- Mundo nuevo, uno de tu Minecraft, la copia de otro servidor o un archivo .mcworld.
+- Entrada para los amigos por internet con un túnel de playit que la app crea sola, sin abrir puertos del router.
+- Copias automáticas antes de abrir y copias en caliente con el servidor abierto.
+- Jugadores con su skin, roles de visitante, miembro u operador, bloqueos e historial de visitas.
+- Consola en vivo, consumo de CPU y memoria, y reinicio automático si el servidor se cae.
+- Instala y actualiza el servidor oficial de Minecraft Bedrock.
+- Cuenta con correo y contraseña o con Google, con tu skin de Minecraft.
+
+## Para quién es
+
+Para quien quiere jugar Minecraft Bedrock con sus amigos en un servidor propio, en su PC y gratis, sin pelear con archivos de configuración, comandos de consola ni la configuración del router.
+
+## Cómo empezar
+
+1. Descarga CraftAdmin desde https://craftadmin.acmsy.com/ (un .zip de unos 140 MB).
+2. Descomprímelo y abre CraftAdmin.exe. La primera vez, Windows muestra un aviso porque la app no está firmada: elige «Más información» y «Ejecutar de todas formas».
+3. Crea un servidor con el asistente: nombre, modo, dificultad y mundo. Lo que falte (el servidor oficial, playit, Java y WaterdogPE) se baja solo.
+4. Conecta playit una vez desde la app y comparte con tus amigos la dirección que aparece.
+
+## Requisitos
+
+- Windows 10 u 11.
+- Minecraft Bedrock instalado en el mismo PC: la app usa sus texturas y letras.
+- Conexión a internet para que entren los amigos.
+
+## Autor
+
+Anderson Coronado Mazo · https://ander.acmsy.com/

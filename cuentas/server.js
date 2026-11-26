@@ -269,7 +269,7 @@ async function googleVuelta(req, res, query) {
 }
 
 // ---------- Página de descarga y archivos ----------
-const TIPOS = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.png': 'image/png', '.jpg': 'image/jpeg', '.svg': 'image/svg+xml', '.ico': 'image/x-icon', '.webp': 'image/webp', '.zip': 'application/zip', '.exe': 'application/vnd.microsoft.portable-executable' };
+const TIPOS = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.png': 'image/png', '.jpg': 'image/jpeg', '.svg': 'image/svg+xml', '.ico': 'image/x-icon', '.webp': 'image/webp', '.txt': 'text/plain; charset=utf-8', '.xml': 'application/xml; charset=utf-8', '.zip': 'application/zip', '.exe': 'application/vnd.microsoft.portable-executable' };
 function enviarHtml(res, status, html) { res.writeHead(status, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' }); res.end(html); }
 function servirArchivo(res, base, rel, extra = {}) {
   const ruta = path.normalize(path.join(base, rel));

@@ -1,0 +1,9 @@
+# CraftAdmin · https://craftadmin.acmsy.com/
+# La portada es pública; la API, la entrada con Google y la descarga directa no se indexan.
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /auth/
+Disallow: /descargar
+
+Sitemap: https://craftadmin.acmsy.com/sitemap.xml
